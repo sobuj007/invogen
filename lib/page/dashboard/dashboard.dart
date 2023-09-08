@@ -11,6 +11,8 @@ import 'package:invogen/page/model/clientsModel.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:http/http.dart' as http;
 
+import '../invoice/inviceViewer.dart';
+
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -183,6 +185,8 @@ showDialog(context: context, builder: (_)=>Container(height: 100,width: 100,colo
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 0.h, vertical: 1.h),
                                       child: ListTile(
+                                        onTap: (){
+                                           },
                                           leading: CircleAvatar(
                                             radius: 30.0,
                                             backgroundImage: NetworkImage(
@@ -199,6 +203,7 @@ showDialog(context: context, builder: (_)=>Container(height: 100,width: 100,colo
                               },
                             ),
                           ),
+                          /**************************************************** invoice ************************ */
                           Container(
                             height: 100.h,
                             width: 100.w,
@@ -214,7 +219,11 @@ showDialog(context: context, builder: (_)=>Container(height: 100,width: 100,colo
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 0.h, vertical: 1.h),
                                       child: ListTile(
-                                          leading: CircleAvatar(
+                                        onTap:(){
+                                          Navigator.push(context,CupertinoPageRoute(builder: (_)=>PdfViewer(pdfData:invoices[index]['url'])));
+                                      
+                                        }
+,                                          leading: CircleAvatar(
                                             radius: 30.0,
                                             backgroundImage: NetworkImage(
                                                 invoices[index]['url']),

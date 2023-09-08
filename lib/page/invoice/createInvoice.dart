@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:invogen/main.dart';
 import 'package:invogen/page/dashboard/dashboard.dart';
+import 'package:invogen/page/invoice/inviceViewer.dart';
 import 'package:list_country_picker/list_country_picker.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:http/http.dart' as http;
@@ -35,8 +37,8 @@ class _CreateInvoiceState extends State<CreateInvoice> {
   XFile? _photo;
   var pickedImage = '';
   List itemsList = [];
-  List itemsListItem = [];
-  List itemsListPrice = [];
+  List<String> itemsListItem = [];
+  List<String> itemsListPrice = [];
   late StateSetter _setter;
   var total = 0.0;
   @override
@@ -379,7 +381,7 @@ class _CreateInvoiceState extends State<CreateInvoice> {
                             child: total == 0.0
                                 ? Text('')
                                 : Text(
-                                    total.toString().substring(0, 4),
+                                    total.toStringAsFixed(2),
                                     style: fonts.h7reguler(col.whites),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -458,48 +460,67 @@ class _CreateInvoiceState extends State<CreateInvoice> {
 
   
 
-  var headersList = {
+  Map<String,String> headersList = {
  
- 'Accept': 'application/json',
- 'Authorization': 'Bearer ' + temp.getToken().toString() 
+ "Accept": "application/json",
+ "Authorization": "Bearer " + temp.getToken().toString() 
 };
 var url = Uri.parse('https://invogen.cosmeticplugs.com/api/invoice/store');
 
-var body = {
- 'client': widget.clientId.toString(),
- 'template': widget.template.toString(),
- 'discount': '0',
- 'due_date': widget.deuDate.toString(),
- 'title[]': itemsListItem.toString(),
- 'price[]': itemsListPrice.toString(),
-//  'title[]': 'Item 3',
-//  'title[]': 'Item 4',
-//  'title[]': 'Item 5',
-//  'price[]': '1',
-//  'price[]': '2',
-//  'price[]': '3',
-//  'price[]': '4',
-//  'price[]': '5' 
+Map<String,String>data;
+data={
+  "client": widget.clientId,
+ "template": widget.template.toString().toLowerCase(),
+ "discount": "0",
+ "due_date": widget.deuDate.toString(),
 };
+ for(int i=0;i<itemsListItem.length;i++){
+   data.addAll({'title[$i]':itemsListItem[i]});
+   data.addAll({'price[$i]':itemsListPrice[i]});
+  }
 
-var req = http.MultipartRequest('POST', url);
-req.headers.addAll(headersList);
-req.fields.addAll(body);
+// Map<String,dynamic> bodydata = {
+//  "client": widget.clientId,
+//  "template": widget.template,
+//  "discount": "0",
+//  "due_date": widget.deuDate,
+//   "title[]": itemsListItem,
+//  "price[]": itemsListPrice,
+// //  'title[]': 'Item 3',
+// //  'title[]': 'Item 4',
+// //  'title[]': 'Item 5',
+// //  'price[]': '1',
+// //  'price[]': '2',
+// //  'price[]': '3',
+// //  'price[]': '4',
+// //  'price[]': '5' 
+// };
+// print(bodydata);
 
-var res = await req.send();
-final resBody = await res.stream.bytesToString();
+var req =await http.post(url,
+ headers:
+ {
+ "Accept": "application/json",
+ "Authorization": "Bearer " + temp.getToken().toString() 
+},body: data
+);
 
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      print(resBody);
+var res = jsonDecode(req.body);
+
+    if (req.statusCode >= 200 && req.statusCode < 300) {
+      print(res);
       Navigator.pop(context);
       sheet.showSucessTost(context, "Invoice Added Successfuly");
-
+      print(res['data']['invoice']['url'].toString());
+Navigator.push(context,CupertinoPageRoute(builder: (_)=>PdfViewer(pdfData:res['data']['invoice']['url'])));
       clearAll();
     } else {
       print(res.reasonPhrase);
       Navigator.pop(context);
       sheet.showSucessTost(context, "Someting Wrong");
     }
+     
+
   }
 
   clearAll() {

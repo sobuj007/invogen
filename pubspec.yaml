@@ -28,7 +28,8 @@ dependencies:
   flutter_holo_date_picker: ^1.1.0
   syncfusion_flutter_pdfviewer: ^22.2.12
   flutter_file_downloader: ^1.1.2
-  flutter_email_sender: ^6.0.1
+  flutter_email_sender: 
+  device_info_plus:
   
 
 dev_dependencies:

@@ -1,4 +1,4 @@
-package com.invogen.app.invogen
+package com.example.invogen
 
 import io.flutter.embedding.android.FlutterActivity
 

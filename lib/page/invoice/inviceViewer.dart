@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -11,7 +12,8 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:http/http.dart' as http;
 class PdfViewer extends StatefulWidget {
   final pdfData;
-  const PdfViewer({this.pdfData,super.key});
+  final client;
+  const PdfViewer({this.pdfData,this.client,super.key});
 
   @override
   State<PdfViewer> createState() => _PdfViewerState();
@@ -19,11 +21,16 @@ class PdfViewer extends StatefulWidget {
 
 class _PdfViewerState extends State<PdfViewer> {
   final GlobalKey<SfPdfViewerState> _pdfViewerKey = GlobalKey();
- 
+ var pathfinal;
   @override
   void initState() {
     super.initState();
+ downpdf();
   }
+  downpdf()async{
+     await downloadFile(widget.pdfData, widget.pdfData.toString().substring(43,widget.pdfData.length),'/download');
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +47,23 @@ class _PdfViewerState extends State<PdfViewer> {
               
             ),
             onPressed: ()async {
+var  text = 'Dear ${widget.client['name']},\n\n'
+          'I hope this message finds you well. We would like to extend our heartfelt gratitude for your prompt payment of the invoice.\n\n'
+          'Your timely payment not only helps us maintain the smooth operation of our business but also strengthens our partnership. We greatly value your trust in our products/services, and your continued support is instrumental in our success.\n\n'
+          'Please do not hesitate to reach out to our billing department at [Billing Department Contact Information] if you have any questions or require further clarification regarding the invoice or payment.\n\n'
+          'Once again, thank you for your prompt attention to this matter. We look forward to serving you again in the future and continuing to meet your needs.\n your invoice is attach in the attachment section or you will download from url ${widget.pdfData} \n'
+          'Warm regards,\n'
+          'Jhon Deo'
+          'Executive Manager'
+          'Invogen.io';
+
         final Email email = Email(
-  body: 'Email body ${widget.pdfData}',
-  subject: 'Email subject',
-  recipients: ['anwarsobuj007@gmail.com'],
-  cc: ['cc@example.com'],
-  bcc: ['bcc@example.com'],
- // attachmentPaths: ['/path/to/attachment.zip'],
+  body: text,
+  subject: 'Invogen invoice Email',
+  recipients: [widget.client['email']],
+  cc: [''],
+  bcc: [''],
+ attachmentPaths: [pathfinal.toString()],
   isHTML: false,
 );
 
@@ -123,26 +140,20 @@ downloadFile(String urldata, String fileName, String dir) async {
   if (response.statusCode == 200) {
     // Get the document directory using path_provider
    // final appDocDir = await getApplicationDocumentsDirectory();
-    final appDocDir = await getExternalStorageDirectory();
+    final appDocDir = await getDownloadsDirectory();
     final filePath = '${appDocDir!.path}/$fileName';
 
     // Write the PDF data to a file
     final pdfFile = File(filePath);
     await pdfFile.writeAsBytes(response.bodyBytes);
+pathfinal=pdfFile;
 
-    // Open the PDF using a PDF viewer package or widget
-    // For example, you can use 'pdf_flutter' package or 'flutter_pdfview'
-    // You need to add the corresponding package to your pubspec.yaml for this step.
-
-    // Example using pdf_flutter:
-    // Navigator.of(context).push(
-    //   MaterialPageRoute(
-    //     builder: (_) => PDFViewer(document: PDFDocument(file: pdfFile)),
-    //   ),
-    // );
     print(pdfFile.toString());
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Download Complete")));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(pdfFile.toString())));
+    setState(() {
+  
+});
   } else {
     throw Exception('Failed to download PDF');
   }

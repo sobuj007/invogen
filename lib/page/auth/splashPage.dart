@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:invogen/main.dart';
 import 'package:invogen/page/auth/loginPage.dart';
+import 'package:invogen/page/dashboard/dashboard.dart';
+import 'package:invogen/utilty/hiveDB.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,7 +17,7 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   starttimer(){
     Future.delayed(Duration(seconds: 2)).then((value) => {
- Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_)=>LoginPage()))
+getdata()
     });
   }
   @override
@@ -22,6 +26,22 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     starttimer();
   }
+  
+ getdata()async{
+     var data=await HiveDB().fetchData('userInfo', 'user');
+ if(data!=null){
+  var jres= json.decode(data);
+  temp.setUser(jres['data']['user']);
+  temp.setToken(jres['data']['token']);
+  print(jres['data']['token'].toString());
+  Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_)=>Dashboard()));
+ }else{
+   Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_)=>LoginPage()));
+ }
+
+  }
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(backgroundColor: col.themeColor,body: Container(

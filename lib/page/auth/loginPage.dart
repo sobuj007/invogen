@@ -24,19 +24,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-   getdata();
+   //getdata();
   }
-  getdata()async{
-     var data=await HiveDB().fetchData('userInfo', 'user');
- if(data!=null){
-  var jres= json.decode(data);
-  temp.setUser(jres['data']['user']);
-  temp.setToken(jres['data']['token']);
-  print(jres['data']['token'].toString());
-  Navigator.push(context, CupertinoPageRoute(builder: (_)=>Dashboard()));
- }
-
-  }
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
       HiveDB().storeData("userInfo", 'user',resBody);
       Navigator.pop(context);
       sheet.showSucessTost(context, "data recive");
-      Navigator.push(context, CupertinoPageRoute(builder: (_)=>Dashboard()));
+      Navigator.pushReplacement(context, CupertinoPageRoute(builder: (_)=>Dashboard()));
     } else {
       print(res.reasonPhrase);
         Navigator.pop(context);
